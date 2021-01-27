@@ -116,9 +116,7 @@ namespace astar
        * @return int 
        */
        static int getWidth();
-
        static int getHeight();
-
        static int getMapCellNum();
 
       /**
@@ -242,18 +240,15 @@ namespace astar
        */
       float calculateHeuristic(int cell, int goal);
 
+     
+      int calculateCellIndex(int i, int j); 
+
       /**
        * @brief Get the Cell x coordinate 
        * 
        * @param index 
        * @return int x coordinate of the cell
        */
-
-
-      int calculateCellIndex(int i, int j); 
-
-
-
       int getCellX(int index);
       /**
        * @brief Get the Cell y coordinate
