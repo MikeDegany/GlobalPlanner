@@ -237,9 +237,7 @@ int Astar::ns_ = 0;
     float newY = y / (resolution);
 
     /// TODO: Why toIndex does not work well? the problem might be the wrong data type conversion
-    // cellIndex = static_cast<int>(toIndex(newY, newX));
     cellIndex = calculateCellIndex(newY, newX);
-    //cellIndex = (newX * nx_) + newY;
     return cellIndex;
   }
 
@@ -264,8 +262,6 @@ int Astar::ns_ = 0;
 
   vector<int> Astar::astarAlgorithm(double startx, double starty, double goalx, double goaly)   //(int start, int goal)
   {
-      // int startCell = getCellIndex(startx, starty);
-      // int goalCell = getCellIndex(goalx, goaly);
     
     vector<int> bestPath;
 
@@ -298,6 +294,7 @@ int Astar::ns_ = 0;
     cell.i_ = startCell;
     cell.cost_ = cellPot[startCell] + calculateHeuristic(startCell, goalCell); 
     queue_.push_back(cell);
+    // queue1_.insert(cell);
     std::make_heap (queue_.begin(),queue_.end(),greaterone());
 
     int currentCell = startCell;
@@ -338,9 +335,7 @@ int Astar::ns_ = 0;
     Cell cell;
     cell.i_ = neighbor; 
     cell.cost_ = cellPot[neighbor] + calculateHeuristic(neighbor, goal);
-
     queue_.push_back(cell); std::push_heap(queue_.begin(), queue_.end(), greaterone());
-
   }
 
   vector<int> Astar::passableNeighbors(int cellIndex)
@@ -483,6 +478,5 @@ int Astar::ns_ = 0;
 
 
 };
-
 
 

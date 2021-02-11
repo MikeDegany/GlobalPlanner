@@ -96,6 +96,8 @@ std::vector<int> GradientDescent::pathFinder(const float cellPot[], double start
 
         path.push_back(C_current);
 
+        // int npath = path.size();
+
 
         int stcnx = C_current + Astar::getWidth();
         int stcpx = C_current - Astar::getWidth();
@@ -231,6 +233,7 @@ std::vector<int> GradientDescent::pathFinder(const float cellPot[], double start
 }// end of pathFinder member function
 
 
+
 float GradientDescent::cellGradient(const float cellPot[], int n)
  {
 
@@ -283,4 +286,3 @@ float GradientDescent::cellGradient(const float cellPot[], int n)
 }// end GradientDescent member function
 
 } //end namespace global_planner
-

@@ -46,7 +46,6 @@ using std::string;
  * 
  */
 class Cell{
-  // friend greaterone
   public:
     Cell(){}
     Cell(int index, float cost){
@@ -60,12 +59,10 @@ class Cell{
 
 struct greaterone 
 {
-  // template<class T>
   inline bool operator()(Cell const &c1, Cell const &c2) {
    return c1.cost_ > c2.cost_; 
    }
   
-
 };
 namespace astar
 {
@@ -126,7 +123,9 @@ namespace astar
        * @return int 
        */
        static int getWidth();
+
        static int getHeight();
+
        static int getMapCellNum();
 
       /**
@@ -251,15 +250,18 @@ namespace astar
        */
       float calculateHeuristic(int cell, int goal);
 
-     
-      int calculateCellIndex(int i, int j); 
-
       /**
        * @brief Get the Cell x coordinate 
        * 
        * @param index 
        * @return int x coordinate of the cell
        */
+
+
+      int calculateCellIndex(int i, int j); 
+
+
+
       int getCellX(int index);
       /**
        * @brief Get the Cell y coordinate
@@ -307,7 +309,6 @@ namespace astar
       bool initialized_;
       vector<Cell> queue_;
       multiset<Cell> queue1_;
-      // queue<Cell> queue_;
       costmap_2d::Costmap2DROS *costmap_ros_;
       costmap_2d::Costmap2D *costmap_;
       float originX;
