@@ -46,24 +46,39 @@ using std::string;
  * 
  */
 class Cell{
+
   public:
     Cell(){}
     Cell(int index, float cost){
       i_ = index;
       cost_ = cost;
       }
-    //private:
+    bool operator()(Cell const &c1, Cell const &c2)
+    {
+      return c1.cost_ > c2.cost_; 
+    } 
+    void setIndex(int i)
+    {
+      i_ = i;
+    }
+    void setCost(float cost)
+    {
+      cost_ = cost;
+    }
+    int getIndex()
+    {
+      return i_;
+    }
+    float getCost()
+    {
+      return cost_;
+    }
+  private:
     int i_;
     float cost_; 
 };
 
-struct greaterone 
-{
-  inline bool operator()(Cell const &c1, Cell const &c2) {
-   return c1.cost_ > c2.cost_; 
-   }
-  
-};
+
 namespace astar
 {
 

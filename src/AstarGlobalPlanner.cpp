@@ -32,12 +32,6 @@ PLUGINLIB_EXPORT_CLASS(astar::Astar, nav_core::BaseGlobalPlanner)
 bool* occupancyGridMap;
 
 
-//  Overloaded operator: <; true if the cost of the first cell is greater than the other.
-bool operator<(Cell const &c1, Cell const &c2) {
-   return c1.cost_ < c2.cost_; 
-   }
-
-
 namespace astar
 {
 
@@ -91,7 +85,8 @@ int Astar::ns_ = 0;
         }
       }
 
-      std::make_heap(queue_.begin(),queue_.end(),greaterone());//////////////////////////////////////////////////////////////////
+      // std::make_heap(queue_.begin(),queue_.end(),greaterone());//////////////////////////////////////////////////////////////////
+      std::make_heap(queue_.begin(),queue_.end(), Cell());//////////////////////////////////////////////////////////////////
       
       ROS_INFO("Global planner initialized.");
       initialized_ = true;
@@ -291,18 +286,25 @@ int Astar::ns_ = 0;
     Cell cell;
 
     cellPot[startCell] = 0;
-    cell.i_ = startCell;
-    cell.cost_ = cellPot[startCell] + calculateHeuristic(startCell, goalCell); 
+    // cell.i_ = startCell;
+    cell.setIndex(startCell);
+    // cell.cost_ = cellPot[startCell] + calculateHeuristic(startCell, goalCell); 
+    cell.setCost(cellPot[startCell] + calculateHeuristic(startCell, goalCell)); 
+
     queue_.push_back(cell);
     // queue1_.insert(cell);
-    std::make_heap (queue_.begin(),queue_.end(),greaterone());
+    // std::make_heap (queue_.begin(),queue_.end(),greaterone());
+    std::make_heap (queue_.begin(),queue_.end(),Cell());
 
     int currentCell = startCell;
 
     while (!queue_.empty() && cellPot[goalCell] == H_value) //queue is not empty or the value of the goalCell has not been calculated.
     {
-      currentCell = queue_.begin()->i_; //the cell with the highest cost 
-      std::pop_heap(queue_.begin(), queue_.end(), greaterone()); queue_.pop_back();
+      //currentCell = queue_.begin()->i_; //the cell with the highest cost 
+      currentCell = queue_.begin()->getIndex(); //the cell with the highest cost 
+      
+      // std::pop_heap(queue_.begin(), queue_.end(), greaterone()); queue_.pop_back();
+      std::pop_heap(queue_.begin(), queue_.end(), Cell()); queue_.pop_back();
       
       vector<int> adjacentCells;
       adjacentCells = passableNeighbors(currentCell);
@@ -333,9 +335,11 @@ int Astar::ns_ = 0;
   void Astar::addNeighborToQueue(vector<Cell>& queue_, int neighbor, int goal, float cellPot[])
   {
     Cell cell;
-    cell.i_ = neighbor; 
-    cell.cost_ = cellPot[neighbor] + calculateHeuristic(neighbor, goal);
-    queue_.push_back(cell); std::push_heap(queue_.begin(), queue_.end(), greaterone());
+    cell.setIndex(neighbor);
+    cell.setCost(cellPot[neighbor] + calculateHeuristic(neighbor, goal));
+
+    queue_.push_back(cell); std::push_heap(queue_.begin(), queue_.end(), Cell());
+
   }
 
   vector<int> Astar::passableNeighbors(int cellIndex)
