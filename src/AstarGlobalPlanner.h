@@ -38,7 +38,6 @@ using namespace std;
 using std::string;
 
 
-
 /**
  * Cell: a square in the grid, e.g. a pixel (picture element) in a picture
  * @brief Cell(i,cost): ordered pair containing index and the assigned value of the cell
@@ -47,16 +46,27 @@ using std::string;
  * 
  */
 class Cell{
+  // friend greaterone
   public:
     Cell(){}
     Cell(int index, float cost){
       i_ = index;
       cost_ = cost;
       }
+    //private:
     int i_;
     float cost_; 
 };
 
+struct greaterone 
+{
+  // template<class T>
+  inline bool operator()(Cell const &c1, Cell const &c2) {
+   return c1.cost_ > c2.cost_; 
+   }
+  
+
+};
 namespace astar
 {
 
@@ -194,6 +204,7 @@ namespace astar
        * @param cellPot 
        */
       void addNeighborToQueue(vector<Cell> &OPL, int neighbor, int goal, float cellPot[]);
+      // void addNeighborToQueue(multiset<Cell> &OPL, int neighbor, int goal, float cellPot[]);
 
       /**
        * @brief return the adjacent cells that are open 
@@ -300,12 +311,14 @@ namespace astar
       ros::NodeHandle ROSNodeHandle;
       bool initialized_;
       vector<Cell> queue_;
+      multiset<Cell> queue1_;
+      // queue<Cell> queue_;
       costmap_2d::Costmap2DROS *costmap_ros_;
       costmap_2d::Costmap2D *costmap_;
       float originX;
       float originY;
       float resolution;
-      //Assigned value for non-calculated nodes
+      
 
   };
 };

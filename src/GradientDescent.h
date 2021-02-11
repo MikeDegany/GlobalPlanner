@@ -20,7 +20,7 @@
 namespace astar {
 
     class GradientDescent{
-        //friend class Astar;
+        friend class Astar;
         public:
             /**
              * @brief Construct a new Gradient Descent object
@@ -54,7 +54,7 @@ namespace astar {
 
              * @return std::vector<int> path: the final plan to be considered
              */
-            std::vector<int> pathFinder(float cellPot[], double start_x, double start_y, double end_x, double end_y);
+            std::vector<int> pathFinder(const float cellPot[], double start_x, double start_y, double end_x, double end_y);
 
         private:
             /**
@@ -64,7 +64,7 @@ namespace astar {
              * @param n the index of the desired cell
              * @return float the valure of the gradient of the desired cell
              */
-            float cellGradient(float cellPot[], int n);
+            float cellGradient(const float cellPot[], int n);
 
             float *xGradient_, *yGradient_; // the Gradient vectors 
 

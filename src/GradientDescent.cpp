@@ -42,21 +42,20 @@ void GradientDescent::gradSize(int x, int y) {
     yGradient_ = new float[x * y];
 }
    
-std::vector<int> GradientDescent::pathFinder(float cellPot[], double start_x, double start_y, double goal_x, double goal_y) {
+std::vector<int> GradientDescent::pathFinder(const float cellPot[], double start_x, double start_y, double goal_x, double goal_y)
+ {
 
     
-    std::vector<int> path;  // The main path that would be returned providing the path is found correctly
-    std::vector<int> emptypath; //Should the pathFinder could not find the path, it will return an empty path
+    std::vector<int> path;  
+    std::vector<int> bestPath;  // The main path that would be returned providing the path is found correctly
+    std::vector<int> emptypath; //if the pathFinder could not find the path, it would return an empty path
 
 
     int startIndex = round(start_x) + round(start_y) * Astar::getWidth(); //used for checking if the path got to the start from the goal
-    // int C_current = round(goal_x) + round(goal_y) * nx_;     //current cell
     int C_current = (int)goal_x + (int)goal_y * Astar::getWidth();     //current cell
       
-    // double dx = goal_x - (int)goal_x;
-    // double dy = goal_y - (int)goal_y;
-    float dx = goal_x - (int)goal_x;
-    float dy = goal_y - (int)goal_y;
+    double dx = goal_x - (int)goal_x;
+    double dy = goal_y - (int)goal_y;
 
     ///initialize xGradient_ and yGradient_ with 0
     memset(xGradient_, 0, Astar::getMapCellNum() * sizeof(float));
@@ -64,6 +63,7 @@ std::vector<int> GradientDescent::pathFinder(float cellPot[], double start_x, do
 
     float nx;
     float ny;
+
     int eof; // End-Of-Life (Ctrl + d in Linux)
 
 
@@ -75,24 +75,26 @@ std::vector<int> GradientDescent::pathFinder(float cellPot[], double start_x, do
         nx = C_current % Astar::getWidth() + dx;
         ny = C_current / Astar::getWidth() + dy;
 
-        if (fabs(C_current - startIndex) < 2) {
+        if (fabs(C_current - startIndex) <= 1) 
+        {
             path.push_back(startIndex);
             //ROS_INFO("[GD] pathOK");
-            return path;
+           for (uint i = 0; i < path.size(); i++)
+            bestPath.insert(bestPath.begin() + bestPath.size(), path[path.size() - (i + 1)]);
+   
+            return bestPath;
         } 
 
         /**
          *  Check if the current cell is out the bounds 
          */
-        if (C_current < Astar::getWidth() || C_current > Astar::getWidth() * Astar::getHeight() - Astar::getWidth()) 
+        if ( C_current < Astar::getWidth() || C_current > Astar::getMapCellNum() - Astar::getWidth()) 
         {
             ROS_WARN("[GD] One of the poses of the path goes out of the bounds");
             return emptypath;
         }
 
         path.push_back(C_current);
-
-        int npath = path.size();
 
 
         int stcnx = C_current + Astar::getWidth();
@@ -101,6 +103,19 @@ std::vector<int> GradientDescent::pathFinder(float cellPot[], double start_x, do
         /**
          * If any of the cells in 8-connected neighborhood is not calculated or an obstacle, move to the cell with lowest value
          */
+        if ((cellPot[C_current] >= H_value)) ROS_INFO("11111");
+        if ((cellPot[C_current + 1] >= H_value)) ROS_INFO("2222");
+        if ((cellPot[C_current - 1] >= H_value)) ROS_INFO("3333");
+        if ((cellPot[stcnx] >= H_value)) ROS_INFO("4444");
+        if ((cellPot[stcnx + 1] >= H_value)) ROS_INFO("5555");
+        if ((cellPot[stcnx - 1] >= H_value)) ROS_INFO("6666");
+        if ((cellPot[stcpx] >= H_value)) ROS_INFO("7777");
+        if ((cellPot[stcpx + 1] >= H_value)) ROS_INFO("8888");
+        if ((cellPot[stcpx - 1] >= H_value)) ROS_INFO("9999");
+            
+
+
+
         if ((cellPot[C_current] >= H_value) || (cellPot[C_current + 1] >= H_value) || (cellPot[C_current - 1] >= H_value)
                 || (cellPot[stcnx] >= H_value) || (cellPot[stcnx + 1] >= H_value) || (cellPot[stcnx - 1] >= H_value)
                 || (cellPot[stcpx] >= H_value) || (cellPot[stcpx + 1] >= H_value) || (cellPot[stcpx - 1] >= H_value)
@@ -209,12 +224,15 @@ std::vector<int> GradientDescent::pathFinder(float cellPot[], double start_x, do
 
         } //end the else;  The cell is in a completely Open Neighborhood
 
-    } // end while    
-    return path;
+    } // end while  
+    for (uint i = 0; i < path.size(); i++)
+        bestPath.insert(bestPath.begin() + bestPath.size(), path[path.size() - (i + 1)]);
+    return bestPath;
 }// end of pathFinder member function
 
 
-float GradientDescent::cellGradient(float cellPot[], int n) {
+float GradientDescent::cellGradient(const float cellPot[], int n)
+ {
 
 
     float cv = cellPot[n];

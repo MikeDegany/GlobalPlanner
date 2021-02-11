@@ -23,12 +23,14 @@ _/_/_/      _/_/_/  _/    _/    _/_/_/  _/    _/    _/_/_/  _/    _/  _/    _/  
 #include <pluginlib/class_list_macros.h> // To register the planner as BaseGlobalPlanner plugin
 #include "AstarGlobalPlanner.h"
 #include "GradientDescent.h"
+#include <algorithm>
 
 //Register the planner as BaseGlobalPlanner plugin
 PLUGINLIB_EXPORT_CLASS(astar::Astar, nav_core::BaseGlobalPlanner)
 
 
 bool* occupancyGridMap;
+
 
 //  Overloaded operator: <; true if the cost of the first cell is greater than the other.
 bool operator<(Cell const &c1, Cell const &c2) {
@@ -88,6 +90,8 @@ int Astar::ns_ = 0;
             occupancyGridMap[iy * nx_ + ix] = false;
         }
       }
+
+      std::make_heap(queue_.begin(),queue_.end(),greaterone());//////////////////////////////////////////////////////////////////
       
       ROS_INFO("Global planner initialized.");
       initialized_ = true;
@@ -187,7 +191,7 @@ int Astar::ns_ = 0;
 
           geometry_msgs::PoseStamped pose = goal;
         
-          ROS_INFO("path,x,y: %f, %f, %f", x,y,angle);
+          // ROS_INFO("path,x,y: %f, %f, %f", x,y,angle);
 
           pose.pose.position.x = x;
           pose.pose.position.y = y;
@@ -232,7 +236,7 @@ int Astar::ns_ = 0;
     float newX = x / (resolution);
     float newY = y / (resolution);
 
-    /// @TODO Why toIndex does not work well? the problem might be the wrong data type conversion
+    /// TODO: Why toIndex does not work well? the problem might be the wrong data type conversion
     // cellIndex = static_cast<int>(toIndex(newY, newX));
     cellIndex = calculateCellIndex(newY, newX);
     //cellIndex = (newX * nx_) + newY;
@@ -252,7 +256,7 @@ int Astar::ns_ = 0;
   bool Astar::isCoordinateInBounds(float x, float y)
   {
     bool valid = true;
-    if (x > (nx_ * resolution) || y > (ny_ * resolution))
+    if (x < 0 || x > (nx_ * resolution) || y < 0 || y > (ny_ * resolution))
       valid = false;
 
     return valid;
@@ -270,6 +274,8 @@ int Astar::ns_ = 0;
     for (uint i = 0; i < ns_; i++)
       cellPot[i] = H_value;
 
+
+
     bestPath = findPath( startx,  starty,  goalx,  goaly, cellPot);
 
     return bestPath;
@@ -277,7 +283,8 @@ int Astar::ns_ = 0;
 
   vector<int> Astar::findPath(double startx, double starty, double goalx, double goaly, float cellPot[])
   {
-    //queue_.empty();
+    queue_.empty();
+    queue1_.empty();
 
     vector<int> bestPath;
     vector<int> emptyPath;
@@ -291,21 +298,21 @@ int Astar::ns_ = 0;
     cell.i_ = startCell;
     cell.cost_ = cellPot[startCell] + calculateHeuristic(startCell, goalCell); 
     queue_.push_back(cell);
+    std::make_heap (queue_.begin(),queue_.end(),greaterone());
 
     int currentCell = startCell;
 
     while (!queue_.empty() && cellPot[goalCell] == H_value) //queue is not empty or the value of the goalCell has not been calculated.
     {
-
-      currentCell = queue_.begin()->i_; //the cell with the lowest cost 
-      queue_.erase(queue_.begin()); //remove the first cell in queue
-
+      currentCell = queue_.begin()->i_; //the cell with the highest cost 
+      std::pop_heap(queue_.begin(), queue_.end(), greaterone()); queue_.pop_back();
+      
       vector<int> adjacentCells;
       adjacentCells = passableNeighbors(currentCell);
 
       for (uint i = 0; i < adjacentCells.size(); i++) 
       {
-        if (cellPot[adjacentCells[i]] == H_value) //The value of the adjacent cell has not been calculated earlier
+        if ( (cellPot[currentCell] + moveCost(currentCell, adjacentCells[i])) < cellPot[adjacentCells[i]] ) //The value of the adjacent cell has not been calculated earlier
         {
           cellPot[adjacentCells[i]] = cellPot[currentCell] + moveCost(currentCell, adjacentCells[i]);
           addNeighborToQueue(queue_, adjacentCells[i], goalCell, cellPot);
@@ -317,7 +324,6 @@ int Astar::ns_ = 0;
       GradientDescent gPath;
       gPath.gradSize(nx_,ny_);
       bestPath = gPath.pathFinder(cellPot, (startx/resolution), (starty/resolution), (goalx/resolution), (goaly/resolution));  
-      //  ROS_INFO("bestPath: %d", (int)bestPath.size());
       return bestPath;
     }
     else
@@ -332,7 +338,9 @@ int Astar::ns_ = 0;
     Cell cell;
     cell.i_ = neighbor; 
     cell.cost_ = cellPot[neighbor] + calculateHeuristic(neighbor, goal);
-    queue_.push_back(cell);
+
+    queue_.push_back(cell); std::push_heap(queue_.begin(), queue_.end(), greaterone());
+
   }
 
   vector<int> Astar::passableNeighbors(int cellIndex)
@@ -365,8 +373,9 @@ int Astar::ns_ = 0;
     bool isOpenStartCell = isOpen(start);
     bool isOpenGoalCell = isOpen(goal);
 
-      if (!isOpenStartCell && !isOpenGoalCell) 
+      if (!isOpenStartCell || !isOpenGoalCell) 
       {
+        ROS_WARN("Start or Goal is not valid!");
         isvalid = false;
       }
 
@@ -408,8 +417,9 @@ int Astar::ns_ = 0;
     int x2 = getCellX(gridSquareIndex);
     int y2 = getCellY(gridSquareIndex);
 
-    return sqrt(abs(x1 - x2) + abs(y1 - y2)); //Eucleaden Distance
-    //return abs(x1 - x2) + abs(y1 - y2);     //Manhattan Distance
+    // return sqrt(abs(x1 - x2) + abs(y1 - y2)); //Eucleaden Distance
+    return abs(x1 - x2) + abs(y1 - y2);     //Manhattan Distance
+    // return std::max(abs(x1 - x2) , abs(y1 - y2)); //Diagonal Distance
   }
 
   int Astar::calculateCellIndex(int i, int j) 
