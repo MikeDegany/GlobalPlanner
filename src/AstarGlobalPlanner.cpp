@@ -85,7 +85,6 @@ int Astar::ns_ = 0;
         }
       }
 
-      // std::make_heap(queue_.begin(),queue_.end(),greaterone());//////////////////////////////////////////////////////////////////
       std::make_heap(queue_.begin(),queue_.end(), Cell());//////////////////////////////////////////////////////////////////
       
       ROS_INFO("Global planner initialized.");
@@ -286,14 +285,10 @@ int Astar::ns_ = 0;
     Cell cell;
 
     cellPot[startCell] = 0;
-    // cell.i_ = startCell;
     cell.setIndex(startCell);
-    // cell.cost_ = cellPot[startCell] + calculateHeuristic(startCell, goalCell); 
     cell.setCost(cellPot[startCell] + calculateHeuristic(startCell, goalCell)); 
 
     queue_.push_back(cell);
-    // queue1_.insert(cell);
-    // std::make_heap (queue_.begin(),queue_.end(),greaterone());
     std::make_heap (queue_.begin(),queue_.end(),Cell());
 
     int currentCell = startCell;
@@ -303,7 +298,6 @@ int Astar::ns_ = 0;
       //currentCell = queue_.begin()->i_; //the cell with the highest cost 
       currentCell = queue_.begin()->getIndex(); //the cell with the highest cost 
       
-      // std::pop_heap(queue_.begin(), queue_.end(), greaterone()); queue_.pop_back();
       std::pop_heap(queue_.begin(), queue_.end(), Cell()); queue_.pop_back();
       
       vector<int> adjacentCells;
