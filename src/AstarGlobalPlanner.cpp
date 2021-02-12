@@ -142,16 +142,11 @@ int Astar::ns_ = 0;
       vector<int> bestPath;
       bestPath.clear();
 
-      // bestPath = astarAlgorithm(startCell, goalCell);
       ROS_INFO("startCell: %d, gaolCell: %d", startCell, goalCell);
 
 
       bestPath = astarAlgorithm(startX, startY, goalX, goalY);
 
-
-
-      
-    
       if (bestPath.size() > 0)  //Global Planner found a path
       {
         for (int i = 0; i < bestPath.size(); i++)
@@ -167,15 +162,7 @@ int Astar::ns_ = 0;
           int previous_index;
           getCellCoordinates(index, x, y);
 
-          // previous_index = (i=0) ? index : bestPath[i - 1];
-          if (i != 0)
-          {
-            previous_index = bestPath[i - 1];
-          }
-          else
-          {
-            previous_index = index;
-          }
+          previous_index = (i==0) ? index : bestPath[i - 1];
 
           getCellCoordinates(previous_index, previous_x, previous_y);
 
@@ -185,14 +172,14 @@ int Astar::ns_ = 0;
 
           geometry_msgs::PoseStamped pose = goal;
         
-          // ROS_INFO("path,x,y: %f, %f, %f", x,y,angle);
+          if(i != bestPath.size()-1)
+          {
+            pose.pose.position.x = x;
+            pose.pose.position.y = y;
+            pose.pose.position.z = 0.0;
 
-          pose.pose.position.x = x;
-          pose.pose.position.y = y;
-          pose.pose.position.z = 0.0;
-
-          pose.pose.orientation = tf::createQuaternionMsgFromYaw(angle);
-
+            pose.pose.orientation = tf::createQuaternionMsgFromYaw(angle);
+          }
           plan.push_back(pose);
         }
         return true;
@@ -274,7 +261,6 @@ int Astar::ns_ = 0;
   vector<int> Astar::findPath(double startx, double starty, double goalx, double goaly, float cellPot[])
   {
     queue_.empty();
-    queue1_.empty();
 
     vector<int> bestPath;
     vector<int> emptyPath;
