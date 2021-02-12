@@ -295,7 +295,6 @@ int Astar::ns_ = 0;
 
     while (!queue_.empty() && cellPot[goalCell] == H_value) //queue is not empty or the value of the goalCell has not been calculated.
     {
-      //currentCell = queue_.begin()->i_; //the cell with the highest cost 
       currentCell = queue_.begin()->getIndex(); //the cell with the highest cost 
       
       std::pop_heap(queue_.begin(), queue_.end(), Cell()); queue_.pop_back();
